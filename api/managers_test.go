@@ -1,0 +1,48 @@
+package api
+
+import (
+	"testing"
+)
+
+var defaultCorrectInputNewGoods = InputNewGoods{
+	UserName: "user1" 
+	GoodsName: "морковь"
+	GoodsDesc: "свежая"
+	GoodsAdd: -3
+	GoodsPrice:  float32 (120.47)
+}
+
+func TestInputUserInvalidFields(t *testing.T) {
+	
+	var err error
+
+	input := InputNewGoods{}
+	err = input.Validate()
+	if err == nil {
+		t.Error("Пустая структура прошла валидацию")
+	}
+	errstr := "Некорректное поле прошло валидацию"
+
+	input = defaultCorrectInputNewGoods
+	input.LastName = "Surname"
+	err = input.Validate()
+	if err == nil {
+		t.Error(errstr)
+	}
+
+	input = defaultCorrectInputNewGoods
+	input.GoodsName = "Name Name"
+	err = input.Validate()
+	if err == nil {
+		t.Error(errstr)
+	}
+
+	input = defaultCorrectInputNewGoods
+	input.GoodsDesc = "+ggggg+ 57" 
+	err = input.Validate()
+	if err == nil {
+		t.Error(errstr)
+	}
+
+	}
+}

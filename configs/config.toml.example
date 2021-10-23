@@ -1,0 +1,10 @@
+[database]
+Host     ="127.0.0.1"
+Port     ="1234"
+User     ="user"
+Password ="pass"
+NameDB   ="databasename"
+
+[server]
+Host     ="localhost"
+Port     ="3333"
