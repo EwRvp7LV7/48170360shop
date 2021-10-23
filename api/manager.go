@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/EwRvp7LV7/48170360shop/internal/storage/postgres"
 	"github.com/go-chi/chi/v5"

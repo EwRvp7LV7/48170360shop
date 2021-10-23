@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/EwRvp7LV7/48170360shop/internal/storage/postgres"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
@@ -31,7 +29,7 @@ func AddRouteInputUserBasket(r *chi.Mux) {
 
 		r.Get("getgoodslist", GetGoodsList) //отдает список товаров
 		//r.Get("buy", AddToBacket)   //склад уменьшается на размер корзины, корзина удаляется
-		r.Post("add2basket", AddToBacket)   //операции с корзиной
+		r.Post("add2basket", AddToBacket) //операции с корзиной
 	})
 }
 
@@ -93,12 +91,6 @@ func AddToBacket(w http.ResponseWriter, r *http.Request) {
 	//w.WriteHeader(http.StatusOK) //меняет application/json на text
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonbytes)
-}
-
-//Хешировать пароли, пока не используется
-func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
 }
 
 //Validate валидация структуры.

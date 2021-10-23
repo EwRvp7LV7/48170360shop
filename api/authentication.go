@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/go-chi/render"
+	"golang.org/x/crypto/bcrypt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/lestrrat-go/jwx/jwt"
 
@@ -102,6 +103,12 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//Хешировать пароли, пока не используется
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
 func checkUserAuthentication(w http.ResponseWriter, r *http.Request) {
 
 	_, claims, err := jwtauth.FromContext(r.Context())
@@ -181,106 +188,3 @@ func JWTVerifier() func(http.Handler) http.Handler {
 	tokenAuth := jwtauth.New("HS256", []byte("secret key"), nil)
 	return jwtauth.Verifier(tokenAuth)
 }
-
-// func AddRouteAuthentication(r *chi.Mux) {
-
-// 	r.Route("/api/secretpage", func(r chi.Router) {
-
-// 		tokenAuth := jwtauth.New("HS256", []byte("secret key"), nil)
-// 		r.Use(jwtauth.Verifier(tokenAuth))
-// 		r.Use(jwtauth.Authenticator)
-
-// 		r.Get("/", UserAuth)
-
-// 	})
-
-// 	// // Protected routes
-// 	// r.Group(func(r chi.Router) {
-// 	// 	tokenAuth := jwtauth.New("HS256", []byte("secret key"), nil)
-// 	// 	r.Use(jwtauth.Verifier(tokenAuth))
-// 	// 	r.Use(jwtauth.Authenticator)
-
-// 	// 	r.Get("/secretpage", func(w http.ResponseWriter, r *http.Request) {
-// 	// 		_, claims, _ := jwtauth.FromContext(r.Context())
-// 	// 		w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
-// 	// 	})
-
-// 	// 	r.Post("/secretpage", func(w http.ResponseWriter, r *http.Request) {
-// 	// 		_, claims, _ := jwtauth.FromContext(r.Context())
-// 	// 		w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
-// 	// 	})
-// 	// })
-
-// 	r.Route("/api/auth", func(r chi.Router) {
-
-// 		r.Get("/", UserLoginForm)
-// 		r.Post("/", UserLogin)
-// 	})
-
-// 	r.Route("/api/logout", func(r chi.Router) {
-
-// 		r.Get("/", UserLogout)
-
-// 	})
-// }
-
-// //Хешировать пароли, пока не используются
-// func HashPassword(password string) (string, error) {
-// 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-// 	return string(bytes), err
-// }
-
-// func CheckPasswordHash(password, hash string) bool {
-// 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-// 	return err == nil
-// }
-
-// func UserLoginForm(w http.ResponseWriter, r *http.Request) {
-
-// 	form := `<!DOCTYPE html><html><form method="POST" action="/auth">
-//   <label>username: <input type="text" name="username" value="username123" autocomplete="username" required></label>
-//   <label>password: <input type="password" name="password" value
-// ="password123" autocomplete="current-password" required></label>
-//   <button type="submit">Login</button>
-// </form></html>`
-// 	w.Write([]byte(form))
-// }
-
-// func UserLogin(w http.ResponseWriter, r *http.Request) {
-
-// 	cur1 := r.FormValue("username")
-// 	cur2 := r.FormValue("password")
-
-// 	if cur2 == "password123" {
-// 		tokenAuth := jwtauth.New("HS256", []byte("secret key"), nil)
-// 		_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{
-// 			"name":    cur1,
-// 			"user_id": 123,
-// 			"iss":     "",
-// 			"sub":     "",
-// 			"aud":     "",
-// 			"exp":     time.Now().Add(15 * time.Minute).Unix(),
-// 		})
-
-// 		//w.Header().Set("Location", "/login")не работает
-// 		expiration := time.Now().Add(24 * time.Hour)
-// 		cookie := http.Cookie{Name: "jwt", Value: tokenString, Path: "/", Expires: expiration}
-// 		http.SetCookie(w, &cookie)
-// 		fmt.Println("right password!", &cookie)
-// 		w.WriteHeader(http.StatusOK)
-// 		w.Write([]byte("<!DOCTYPE html><html>Post Successful <script type='text/javascript'> document.location = '/secretpage'; </script></html>"))
-
-// 	} else {
-// 		UserLoginForm(w, r)
-// 	}
-// }
-
-// func UserAuth(w http.ResponseWriter, r *http.Request) {
-// 	_, claims, _ := jwtauth.FromContext(r.Context())
-// 	w.Write([]byte(fmt.Sprintf("Hi user %v!", claims["user_id"])))
-// }
-
-// func UserLogout(w http.ResponseWriter, r *http.Request) {
-// 	w.WriteHeader(http.StatusOK)
-// 	w.Write([]byte("<!DOCTYPE html><html>logout</html>"))
-// }
