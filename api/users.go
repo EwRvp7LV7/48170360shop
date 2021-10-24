@@ -26,6 +26,7 @@ func AddRouteInputUserBasket(r *chi.Mux) {
 	r.Route("/user", func(r chi.Router) {
 
 		r.Use(JWTSecurety) //здесь защита неавторизованного дальше не пустит
+		//комментарии ниже- эксперименты с генератором API swagger
 
 		// swagger:operation GET /user/getgoodslist goodstag ListEndPoint
 		// Get goods list.
