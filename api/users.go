@@ -27,9 +27,47 @@ func AddRouteInputUserBasket(r *chi.Mux) {
 
 		r.Use(JWTSecurety) //здесь защита неавторизованного дальше не пустит
 
+		// swagger:operation GET /health general Health
+		// Check if the service is running.
+		// Returns 204 without content
+		// ---
+		// responses:
+		//     '204':
+		//         description: Service available
 		r.Get("/getgoodslist", GetGoodsList) //отдает список товаров
-		r.Post("/add2basket", AddToBacket)   //операции с корзиной
-		r.Get("/buy", BuyBasket)             //склад уменьшается на размер корзины, корзина удаляется
+
+		// swagger:operation POST /oauth/token auth GetToken
+		// Authenticate and authorise with Windows credentials.
+		// ---
+		// produces:
+		// - application/json
+		// parameters:
+		// - name: grant_type
+		//   in: formData
+		//   description: Grant type
+		//   required: true
+		//   type: string
+		//   default: "password"
+		// - name: username
+		//   in: formData
+		//   description: domain\username
+		//   type: string
+		//   required: true
+		// - name: password
+		//   in: formData
+		//   description: Your password
+		//   required: true
+		//   type: string
+		//   format: password
+		// responses:
+		//     '200':
+		//         description: Authenticated
+		//     '400':
+		//         description: Bad request
+		//     '500':
+		//         description: Internal server error
+		r.Post("/add2basket", AddToBacket) //операции с корзиной
+		r.Get("/buy", BuyBasket)           //склад уменьшается на размер корзины, корзина удаляется
 	})
 }
 

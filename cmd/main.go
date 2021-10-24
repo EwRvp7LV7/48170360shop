@@ -17,6 +17,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	_ "github.com/lib/pq"
+	_ "github.com/pdrum/swagger-automation/docs" // This line is necessary for go-swagger to find your docs!
 )
 
 func run() (err error) {
