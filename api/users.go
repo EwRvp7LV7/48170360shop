@@ -23,13 +23,13 @@ type InputUserBasket struct {
 //прописывает роуты для запросов профиля пользователя.
 func AddRouteInputUserBasket(r *chi.Mux) {
 
-	r.Route("/api/user", func(r chi.Router) {
+	r.Route("/user", func(r chi.Router) {
 
 		r.Use(JWTSecurety) //здесь защита неавторизованного дальше не пустит
 
-		r.Get("getgoodslist", GetGoodsList) //отдает список товаров
-		//r.Get("buy", AddToBacket)   //склад уменьшается на размер корзины, корзина удаляется
-		r.Post("add2basket", AddToBacket) //операции с корзиной
+		r.Get("/getgoodslist", GetGoodsList) //отдает список товаров
+		r.Post("/add2basket", AddToBacket)   //операции с корзиной
+		r.Get("/buy", BuyBasket)             //склад уменьшается на размер корзины, корзина удаляется
 	})
 }
 
@@ -93,11 +93,26 @@ func AddToBacket(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonbytes)
 }
 
+func BuyBasket(w http.ResponseWriter, r *http.Request) {
+
+	_, claims, _ := jwtauth.FromContext(r.Context()) //можно не проверять err тк JWTSecurety
+
+	jsonbytes, err := postgres.BuyBasketDB(claims["user_name"].(string))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(string(err.Error())))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonbytes)
+}
+
 //Validate валидация структуры.
 func (up InputUserBasket) Validate() error {
 	return validation.ValidateStruct(&up,
 		validation.Field(&up.GoodsName, validation.Required, validation.Match(regexp.MustCompile("^[А-Яа-яЁё]{2,50}$"))),
-		validation.Field(&up.GoodsAdd, validation.Required, validation.Match(regexp.MustCompile(`^[\-+]?\d+$`))))
+		validation.Field(&up.GoodsAdd, validation.Required, validation.Match(regexp.MustCompile(`^[+\-]?\d+$`))))
 }
 
 //auxiliary:заглушка для интерфейса

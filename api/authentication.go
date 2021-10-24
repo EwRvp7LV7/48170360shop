@@ -12,9 +12,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/go-chi/render"
-	"golang.org/x/crypto/bcrypt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/lestrrat-go/jwx/jwt"
+	"golang.org/x/crypto/bcrypt"
 
 	//"github.com/lestrrat-go/jwx/jwt"
 	"github.com/EwRvp7LV7/48170360shop/internal/storage/postgres"
@@ -32,20 +32,20 @@ func AddRouteAuthentication(router *chi.Mux) {
 	router.Use(JWTVerifier())
 
 	//пример защищенной страницы
-	router.Route("/api/secretpage", func(r chi.Router) {
+	router.Route("/secretpage", func(r chi.Router) {
 
 		r.Use(JWTSecurety) //здесь защита неавторизованного дальше не пустит
 		r.Get("/", userAuth)
 
 	})
 
-	router.Route("/api/auth", func(r chi.Router) {
+	router.Route("/auth", func(r chi.Router) {
 
 		r.Get("/", checkUserAuthentication)
 		r.Post("/", userLogin)
 	})
 
-	router.Route("/api/logout", func(r chi.Router) {
+	router.Route("/logout", func(r chi.Router) {
 		r.Get("/", UserLogout)
 	})
 }
@@ -62,7 +62,6 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
-
 	if err = validation.Validate(data.Password, validation.Required, validation.RuneLength(6, 15)); err != nil {
 
 		render.Render(w, r, ErrInvalidRequest(err))
@@ -70,7 +69,7 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonbytes, _ := json.Marshal(data)
-	uid, passDB, isAdmin, err := postgres.GetUIDPasswordHash(jsonbytes)
+	uid, passDB, IsCustomer, err := postgres.GetUIDPasswordHash(jsonbytes)
 	if err != nil {
 
 		render.Render(w, r, ErrInvalidRequest(err))
@@ -82,7 +81,7 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 		_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{
 			"user_id":   uid,
 			"user_name": data.UserName,
-			"user_type": isAdmin,
+			"user_type": IsCustomer,
 			// "iss":     "",
 			// "sub":     "",
 			// "aud":     "",
@@ -92,7 +91,7 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 		//w.Header().Set("Location", "/login")не работает
 		expiration := time.Now().Add(24 * time.Hour)
 		cookie := http.Cookie{Name: "jwt", Value: tokenString, Path: "/", Expires: expiration}
-		fmt.Println(cookie)
+		// fmt.Println(cookie)
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
 		render.DefaultResponder(w, r, uid)

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 
+	// "log"
 
 	"github.com/EwRvp7LV7/48170360shop/internal/storage/postgres"
 	"github.com/go-chi/chi/v5"
@@ -16,24 +17,23 @@ import (
 
 //приходящая извне информация для валидации и добавления товара на склад
 type InputNewGoods struct {
-	UserName  string `json:"user_name"`
-	GoodsName string `json:"goods_name"`
+	UserName   string `json:"user_name"`
+	GoodsName  string `json:"goods_name"`
 	GoodsDesc  string `json:"goods_descrription"`
-	GoodsAdd  int `json:"goods_add"`
-	GoodsPrice  float32 `json:"goods_price"`
+	GoodsAdd   string `json:"goods_add"`
+	GoodsPrice string `json:"goods_price"`
 }
-
 
 //прописывает роуты для запросов профиля пользователя.
 func AddRouteInputManager(r *chi.Mux) {
 
-	r.Route("/api/manager", func(r chi.Router) {
+	r.Route("/manager", func(r chi.Router) {
 
 		r.Use(JWTSecurety) //здесь защита неавторизованного дальше не пустит
 
-		r.Get("getbaskets", GetBasketsList) //отдает список товаров
-		r.Post("newgoods", NewGoods)   //Добавить новые товары
-		r.Post("addgoods2store", AddGoodsToStore)   //Изменить количество товара на складе
+		r.Get("/getbaskets", GetBasketsList)       //отдает список товаров
+		r.Post("/newgoods", NewGoods)              //Добавить новые товары
+		r.Post("/addgoods2store", AddGoodsToStore) //Изменить количество товара на складе
 	})
 }
 
@@ -41,7 +41,7 @@ func GetBasketsList(w http.ResponseWriter, r *http.Request) {
 
 	_, claims, _ := jwtauth.FromContext(r.Context()) //можно не проверять err тк JWTSecurety
 
-	jsonbytes, err := postgres.GetBasketsListtDB(claims["user_name"].(string))
+	jsonbytes, err := postgres.GetBasketsListDB(claims["user_name"].(string))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(string(err.Error())))
@@ -75,13 +75,12 @@ func NewGoods(w http.ResponseWriter, r *http.Request) {
 	data.UserName = claims["user_name"].(string)
 
 	inputjsonbytes, _ := json.Marshal(data)
-	jsonbytes, err := postgres.AddToBacketeDB(inputjsonbytes)
+	jsonbytes, err := postgres.NewGoodsDB(inputjsonbytes)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(string(err.Error())))
 		return
 	}
-
 
 	//w.WriteHeader(http.StatusOK) //меняет application/json на text
 	w.Header().Set("Content-Type", "application/json")
@@ -118,18 +117,16 @@ func AddGoodsToStore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	//w.WriteHeader(http.StatusOK) //меняет application/json на text
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonbytes)
 }
 
-
 //Validate валидация структуры.
 func (up InputNewGoods) ValidateNewGoods() error {
 	return validation.ValidateStruct(&up,
 		validation.Field(&up.GoodsName, validation.Required, validation.Match(regexp.MustCompile("^[А-Яа-яЁё]{2,50}$"))),
-		validation.Field(&up.GoodsDesc, validation.Required, validation.Match(regexp.MustCompile("^[А-Яа-яЁё]{2,150}$"))),
+		validation.Field(&up.GoodsDesc, validation.Required, validation.Match(regexp.MustCompile(`^[А-Яа-яЁё\s]{2,150}$`))),
 		validation.Field(&up.GoodsAdd, validation.Required, validation.Match(regexp.MustCompile(`^\d+$`))),
 		validation.Field(&up.GoodsPrice, validation.Required, validation.Match(regexp.MustCompile(`^\d+\.\d\d$`))))
 }
@@ -138,7 +135,7 @@ func (up InputNewGoods) ValidateNewGoods() error {
 func (up InputNewGoods) ValidateGoodsAdd() error {
 	return validation.ValidateStruct(&up,
 		validation.Field(&up.GoodsName, validation.Required, validation.Match(regexp.MustCompile("^[А-Яа-яЁё]{2,50}$"))),
-		validation.Field(&up.GoodsAdd, validation.Required, validation.Match(regexp.MustCompile(`^\d+$`))))
+		validation.Field(&up.GoodsAdd, validation.Required, validation.Match(regexp.MustCompile(`^[+\-]?\d+$`))))
 }
 
 //auxiliary:заглушка для интерфейса

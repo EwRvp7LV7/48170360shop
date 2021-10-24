@@ -3,41 +3,38 @@ package postgres
 import (
 	// "encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 	//"github.com/jmoiron/sqlx"
 	//_ "github.com/lib/pq"
 )
 
-func GetUIDPasswordHash(jsonbytes []byte) (string, string, bool, error) {
+func GetUIDPasswordHash(jsonbytes []byte) (string, string, int, error) {
 	q := `
-WITH xid AS (SELECT * FROM  json_to_record($1) as x(user_name text))
-select user_registered.id_user, user_registered.password_user, user_registered.is_staff from user_registered, xid 
-where user_registered.user_name =  xid.user_name`
+WITH xid AS (SELECT * FROM  json_to_record($1) as x(account text))
+select * from b_users JOIN xid USING(account);`
 
-	//InputUserProfile приходящая извне информация для создания пользователя.
+	//приходящая извне информация для создания пользователя.
 	type AuthenticationDB struct {
-		UserName string `db:"id_user"`
-		// Email         string `json:"e_mail"`
-		Password string `db:"password_user"`
-		IsAdmin  bool   `db:"is_staff"`
+		UserId     string `db:"user_id"`
+		UserName   string `db:"account"`
+		Password   string `db:"password"`
+		IsCustomer int    `db:"type_id"`
 	}
 
 	var adb AuthenticationDB
 
 	if err := db.QueryRowx(q, jsonbytes).StructScan(&adb); err != nil {
 		log.Printf("Error ToFUserProfileDB: %s", err)
-		return "", "", false, err
+		return "", "", 0, err
 	}
 
 	if len(strings.TrimSpace(adb.Password)) == 0 {
 		err := errors.New("wrong user name")
 		log.Printf("Error UserPass: %s", err)
-		return "", "", false, err
+		return "", "", 0, err
 	}
-	fmt.Printf("iseq '%s','%s'", adb.UserName, adb.Password) //iseq ZcexR6Ebv3KYKl ZcexR6Ebv3KYKl
 
-	return adb.UserName, adb.Password, adb.IsAdmin, nil
+	return adb.UserId, adb.Password, adb.IsCustomer, nil
 
 }
