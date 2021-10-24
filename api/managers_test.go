@@ -8,8 +8,8 @@ var defaultCorrectInputNewGoods = InputNewGoods{
 	UserName:   "user1",
 	GoodsName:  "морковь",
 	GoodsDesc:  "свежая",
-	GoodsAdd:   -3,
-	GoodsPrice: float32(120.47),
+	GoodsAdd:   "-3",
+	GoodsPrice: "120.47",
 }
 
 func TestInputUserInvalidFields(t *testing.T) {
