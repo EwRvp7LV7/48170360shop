@@ -8,7 +8,7 @@
 *   Основой для API взят [go-chi/chi](https://github.com/go-chi/chi). Выбран как [быстрый по тестам](https://benhoyt.com/writings/go-routing#benchmarks).
 *   Аутенификация токиеном на базе [go-chi/jwtauth](https://github.com/go-chi/jwtauth). Не лучший вариант, достаточно сырая.
 *   Валидация при помощи [go-ozzo/ozzo-validation](https://github.com/go-ozzo/ozzo-validation) реализована через методы (не через теги структуры), что снижает возможность ошибки разработчика.
-*   API протестировано Postmen. Исходники Postmen находятся в [test/postman](https://github.com/EwRvp7LV7/48170360shop/test/postman).
+*   API протестировано Postman. Исходники Postman находятся в [test/postman](https://github.com/EwRvp7LV7/48170360shop/test/postman).
 *   Начато прописывание комментариев для автоматической генерации swagger.json (находится в папке [docs](https://github.com/EwRvp7LV7/48170360shop/docs)). 
 
 ## Возможности API:
