@@ -2,6 +2,7 @@
 
 ## Реализовано на базе:
 *   Golang & PostgreSQL.
+*   Структура модулей (папок) проекта согласно [golang-standards/project-layout](https://github.com/golang-standards/project-layout).
 *   Основная логика запросов вынесена в функции (stored procedures) PostgreSQL. Функции сохранены в [бекапе](https://github.com/EwRvp7LV7/48170360shop/configs/sql) БД. 
 *   Провайдер БД [jmoiron/sqlx](https://github.com/jmoiron/sqlx).
 *   В качестве ключа строк корзины взят тип UUID.
