@@ -85,7 +85,8 @@ $ go run cmd/main.go
 | [user put into basket] | Добавляет/убавляет товары в корзине, возвращает содержимое корзины (см. выше) <br /> "goods_add": "1" добавляет к количеству +1 товар,  "goods_add": "5" добавляет 5,  <br />"goods_add": "-1" убавляет -1 товар, и т.д. |                                          
 | [user buy]             | Сокращает склад (c_goods.store) на количество товара в корзине и удаляет корзину |
 | [user auth check]      | Проверка авторизации пользователя, возвращает user_name                          |
-| [user auth logout]     | Logout текущего аккаунта  <br />    <br />.                                                |
+| [user auth logout]     | Logout текущего аккаунта                                           |
+|     | Роль менеджера                                        |
 | [manager auth]         | Авторизация user (в БД есть manager1 с паролем manager1pass)                     |
 | [manager get baskets]  | Просмотр всех корзин (содержание таблицы d_basket сгруппированое по user_id)     |
 | [manager new goods]    | Добавление нового товара (название, кол-во, цена) в таблицу c_goods              |
