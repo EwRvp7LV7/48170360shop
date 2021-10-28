@@ -52,6 +52,51 @@
    END IF;
 ```
 
+## Сборка и запуск
+Для 
+```bash
+$ psql -V
+(PostgreSQL) 13.3
+```
+1. Создать в PostgreSQL БД smallshop и восстановить в нее backup
+```bash
+$ psql -h localhost -U postgres -d smallshop -f configs/sql/211024backup.sql
+```
+2. Добавить параметры соединения с вашей БД в configs/config.toml
+``` 
+[database]
+Host     ="localhost"
+Port     ="5432"
+User     ="postgres"
+Password ="pass"
+NameDB   ="smallshop"
+``` 
+3. 
+```bash
+$ go run cmd/main.go
+```
+4. Postman -> Import (Ctrl+O) -> test/postmanshop.postman_collection.json
+
+-------------------------------------------------------------------------------------------------------------
+|      API Postman       | description                                                                      |
+| :--------------------- | :--------------------------------------------------------------------------------|
+| [user auth]            | Авторизация user (в БД есть user1, user2, user3 с одинаковым паролем userpass)   |
+| [user get googs list]  | Возвращает список товаров и цен из таблицы c_goods                               |
+| [user put into basket] | Добавляет/убавляет товары в корзине, возвращает содержимое корзины (см. выше)    |
+|                        | "goods_add": "1" добавляет к количеству +1 товар,  "5" добавляет 5 и т.д.        |
+|                        | "goods_add": "-1" убавляет -1 товар.                                             |
+| [user buy]             | Сокращает склад (c_goods.store) на количество товара в корзине и удаляет корзину |
+| [user auth check]      | Проверка авторизации пользователя, возвращает user_name                          |
+| [user auth logout]     | Logout текущего аккаунта                                                         |
+|                        |                                                                                  |
+| [manager auth]         | Авторизация user (в БД есть manager1 с паролем manager1pass)                     |
+| [manager get baskets]  | Просмотр всех корзин (содержание таблицы d_basket сгруппированое по user_id)     |
+| [manager new goods]    | Добавление нового товара (название, кол-во, цена) в таблицу c_goods              |
+| [manager add to store] | Изменение остатков на складе (c_goods.store),                                    |
+|                        | Например, "goods_add": "-6" уменьшает кол-во на 6                                |
+-------------------------------------------------------------------------------------------------------------
+
+
 
 
 
